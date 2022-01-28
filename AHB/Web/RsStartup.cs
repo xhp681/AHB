@@ -153,7 +153,7 @@ namespace AHB.Web
             //services.AddScoped<IThemeProvider, ThemeProvider>();
             //services.AddScoped<IThemeContext, ThemeContext>();
             //services.AddScoped<IExternalAuthenticationService, ExternalAuthenticationService>();
-            //services.AddSingleton<IRoutePublisher, RoutePublisher>();
+            services.AddSingleton<IRoutePublisher, RoutePublisher>();
             //services.AddScoped<IReviewTypeService, ReviewTypeService>();
             //services.AddSingleton<IEventPublisher, EventPublisher>();
             //services.AddScoped<ISettingService, SettingService>();
