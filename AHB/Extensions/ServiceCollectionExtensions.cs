@@ -1,10 +1,12 @@
 ﻿using AHB.Core;
+using AHB.Server;
 using AHB.Web;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Newtonsoft.Json.Serialization;
+using StackExchange.Profiling.Storage;
 using System.Net;
 using WebMarkupMin.AspNetCore6;
 using WebMarkupMin.NUglify;
@@ -150,10 +152,28 @@ namespace AHB.Extensions
         /// Register custom RedirectResultExecutor
         /// </summary>
         /// <param name="services">Collection of service descriptors</param>
-        public static void AddRsRedirectResultExecutor(this IServiceCollection services)
+        static public void AddRsRedirectResultExecutor(this IServiceCollection services)
         {
             //we use custom redirect executor as a workaround to allow using non-ASCII characters in redirect URLs
             services.AddScoped<IActionResultExecutor<RedirectResult>, RsRedirectResultExecutor>();
+        }
+
+        static public void AddRsMiniProfiler(this IServiceCollection services)
+        {
+            
+
+            var appSettings = Singleton<AppSettings>.Instance;
+            if (appSettings.Get<CommonConfig>().MiniProfilerEnabled)
+            {
+                services.AddMiniProfiler(miniProfilerOptions =>
+                {
+                    //use memory cache provider for storing each result
+                    ((MemoryCacheStorage)miniProfilerOptions.Storage).CacheDuration = TimeSpan.FromMinutes(appSettings.Get<CacheConfig>().DefaultCacheTime);
+
+                    //determine who can access the MiniProfiler results
+                    miniProfilerOptions.ResultsAuthorize = request => EngineContext.Current.Resolve<IPermissionService>().AuthorizeAsync(StandardPermissionProvider.AccessProfiling).Result;
+                });
+            }
         }
 
     }
