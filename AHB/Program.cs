@@ -1,10 +1,11 @@
+using AHB.Core;
 using AHB.Extensions;
 using Autofac.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
-builder.Configuration.AddJsonFile("Configs/appsettings.json", true, true);
+builder.Configuration.AddJsonFile(RsConfigurationDefaults.AppSettingsFilePath, true, true);
 builder.Configuration.AddEnvironmentVariables();
 
 builder.Services.ConfigureApplicationServices(builder);
