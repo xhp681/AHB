@@ -84,6 +84,10 @@
               "target": "Package",
               "version": "[13.0.1, )"
             },
+            "Nito.AsyncEx.Coordination": {
+              "target": "Package",
+              "version": "[5.1.2, )"
+            },
             "WebMarkupMin.AspNetCore6": {
               "target": "Package",
               "version": "[2.11.0, )"
@@ -91,6 +95,10 @@
             "WebMarkupMin.NUglify": {
               "target": "Package",
               "version": "[2.11.0, )"
+            },
+            "linq2db": {
+              "target": "Package",
+              "version": "[3.6.0, )"
             }
           },
           "imports": [

@@ -1,4 +1,6 @@
 ﻿using AHB.Core;
+using AHB.DataBase;
+using AHB.Server;
 
 namespace AHB.Web
 {
@@ -21,12 +23,12 @@ namespace AHB.Web
             //services.AddScoped<IUserAgentHelper, UserAgentHelper>();
 
             //data layer
-            //services.AddTransient<IDataProviderManager, DataProviderManager>();
-            //services.AddTransient(serviceProvider =>
-            //    serviceProvider.GetRequiredService<IDataProviderManager>().DataProvider);
+            services.AddTransient<IDataProviderManager, DataProviderManager>();
+            services.AddTransient(serviceProvider =>
+                serviceProvider.GetRequiredService<IDataProviderManager>().DataProvider);
 
             //repositories
-            //services.AddScoped(typeof(IRepository<>), typeof(EntityRepository<>));
+            services.AddScoped(typeof(IRepository<>), typeof(EntityRepository<>));
 
             //plugins
             //services.AddScoped<IPluginService, PluginService>();
@@ -34,16 +36,16 @@ namespace AHB.Web
 
             //static cache manager
             var appSettings = Singleton<AppSettings>.Instance;
-            //if (appSettings.Get<DistributedCacheConfig>().Enabled)
-            //{
-            //    services.AddScoped<ILocker, DistributedCacheManager>();
-            //    services.AddScoped<IStaticCacheManager, DistributedCacheManager>();
-            //}
-            //else
-            //{
-            //    services.AddSingleton<ILocker, MemoryCacheManager>();
-            //    services.AddSingleton<IStaticCacheManager, MemoryCacheManager>();
-            //}
+            if (appSettings.Get<DistributedCacheConfig>().Enabled)
+            {
+                services.AddScoped<ILocker, DistributedCacheManager>();
+                services.AddScoped<IStaticCacheManager, DistributedCacheManager>();
+            }
+            else
+            {
+                services.AddSingleton<ILocker, MemoryCacheManager>();
+                services.AddSingleton<IStaticCacheManager, MemoryCacheManager>();
+            }
 
             //work context
             //services.AddScoped<IWorkContext, WebWorkContext>();
@@ -155,8 +157,8 @@ namespace AHB.Web
             //services.AddScoped<IExternalAuthenticationService, ExternalAuthenticationService>();
             services.AddSingleton<IRoutePublisher, RoutePublisher>();
             //services.AddScoped<IReviewTypeService, ReviewTypeService>();
-            //services.AddSingleton<IEventPublisher, EventPublisher>();
-            //services.AddScoped<ISettingService, SettingService>();
+            services.AddSingleton<IEventPublisher, EventPublisher>();
+            services.AddScoped<ISettingService, SettingService>();
             //services.AddScoped<IBBCodeHelper, BBCodeHelper>();
             //services.AddScoped<IHtmlFormatter, HtmlFormatter>();
 
@@ -178,17 +180,16 @@ namespace AHB.Web
             var typeFinder = Singleton<ITypeFinder>.Instance;
 
             var settings = typeFinder.FindClassesOfType(typeof(ISettings), false).ToList();
-            //foreach (var setting in settings)
-            //{
-            //    services.AddScoped(setting, serviceProvider =>
-            //    {
-            //        var storeId = DataSettingsManager.IsDatabaseInstalled()
-            //            ? serviceProvider.GetRequiredService<IStoreContext>().GetCurrentStore()?.Id ?? 0
-            //            : 0;
-
-            //        return serviceProvider.GetRequiredService<ISettingService>().LoadSettingAsync(setting, storeId).Result;
-            //    });
-            //}
+            foreach (var setting in settings)
+            {
+                services.AddScoped(setting, serviceProvider =>
+                {
+                    var storeId = DataSettingsManager.IsDatabaseInstalled()
+                        ? serviceProvider.GetRequiredService<IStoreContext>().GetCurrentStore()?.Id ?? 0
+                        : 0;
+                    return serviceProvider.GetRequiredService<ISettingService>().LoadSettingAsync(setting, storeId).Result;
+                });
+            }
 
             //picture service
             //if (appSettings.Get<AzureBlobConfig>().Enabled)
